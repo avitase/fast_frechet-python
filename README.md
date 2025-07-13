@@ -18,7 +18,8 @@ More precisely,
 1. [`branchless`](fast_frechet/branchless.py): A variant w/o branches.
 1. [`linear_memory`](fast_frechet/linear_memory.py): This formulation reduces the quadratic memory footprint to a linear one.
 1. [`accumulate`](fast_frechet/accumulate.py): Formulation using a scan operation.
-1. [`reduce_accumulate`](fast_frechet/reduce_accumulate.py): Formulation using a fold operation.
+1. [`reduce_accumulate`](fast_frechet/reduce_accumulate.py): Formulation using scan and fold operations.
+1. [`reduce_accumulate2`](fast_frechet/reduce_accumulate2.py): Alternative formulation using the scan with an associative operator that is slower in a single-threaded context but can take full advantage of parallel scan implementations. 
 1. [`compiled`](fast_frechet/compiled.py): Variant of [`reduce_accumulate`](fast_frechet/reduce_accumulate.py) using the [Numba library](https://numba.pydata.org/) for JIT compilation of the innermost loop.
 
 Implementations of all these variants can be found under [`fast_frechet/`](fast_frechet/) or by simply clicking on the listed names above.
@@ -40,6 +41,7 @@ $ pre-commit install
 The snippet below estimates the Fréchet distance between the polygonal curves `p` and `q` using the Euclidean distance as a metric to measure distances between points:
 
 ```python
+>>> import numpy as np
 >>> from fast_frechet.linear_memory import frechet_distance
 
 >>> p = np.array([[1, 2], [3, 4]])
@@ -55,13 +57,14 @@ For invoking the [benchmark script](fast_frechet/__main__.py), run:
 $ python fast_frechet
 Length of trajectory = 1024
 
-        no_recursion: 2303 ms
-          vectorized:  553 ms
-          branchless:  508 ms
-       linear_memory:  348 ms
-          accumulate:  286 ms
-   reduce_accumulate:  282 ms
-            compiled:   11 ms
+        no_recursion: 1915 ms
+          vectorized:  495 ms
+          branchless:  466 ms
+       linear_memory:  294 ms
+          accumulate:  258 ms
+   reduce_accumulate:  249 ms
+  reduce_accumulate2:  360 ms
+            compiled:    9 ms
 ```
 (Note that we don't even try to benchmark the [`vanilla`](fast_frechet/vanilla.py) version here, as it already crashes for polygonal curves with a few hundred points due to its recursive nature.)
 

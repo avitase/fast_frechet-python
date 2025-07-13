@@ -10,6 +10,7 @@ from fast_frechet import (
     linear_memory,
     no_recursion,
     reduce_accumulate,
+    reduce_accumulate2,
     vectorized,
 )
 
@@ -43,6 +44,7 @@ def main(*, n=1024, seed=42):
         linear_memory,
         accumulate,
         reduce_accumulate,
+        reduce_accumulate2,
         compiled,
     ]:
         f = partial(v.frechet_distance, metric=metric)

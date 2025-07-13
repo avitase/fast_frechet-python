@@ -8,6 +8,7 @@ from fast_frechet import (
     linear_memory,
     no_recursion,
     reduce_accumulate,
+    reduce_accumulate2,
     vanilla,
     vectorized,
 )
@@ -41,6 +42,7 @@ def generate_trajectory(n, *, dim, rng):
         linear_memory,
         accumulate,
         reduce_accumulate,
+        reduce_accumulate2,
         compiled,
     ],
 )
@@ -63,6 +65,7 @@ def test_simple_example(variant):
         linear_memory,
         accumulate,
         reduce_accumulate,
+        reduce_accumulate2,
         compiled,
     ],
 )
@@ -83,3 +86,17 @@ def test_frechet(variant, P, Q, dim, seed):
     dqp = variant.frechet_distance(q, p, metric=f)
     assert dpq == d_exp
     assert dqp == d_exp
+
+
+@pytest.mark.parametrize("seed", range(1_000))
+def test_frechet_combine_associativity(seed):
+    rng = np.random.default_rng(seed)
+
+    vd1, vd2, vd3 = rng.integers(0, 6, size=(3, 2))
+
+    vd1 = np.sort(vd1)[::-1]
+    vd2 = np.sort(vd2)[::-1]
+    vd3 = np.sort(vd3)[::-1]
+
+    f = reduce_accumulate2.frechet_combine
+    assert f(f(vd1, vd2), vd3) == f(vd1, f(vd2, vd3))
